@@ -1,0 +1,51 @@
+name: "EKS Cluster CI/CD"
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "Choose action: apply or destroy"
+        required: true
+        default: "apply"
+        type: choice
+        options:
+          - apply
+          - destroy
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+    env:
+      AWS_REGION: us-east-1   # must match your backend.tf region
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.9.5
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Apply or Destroy
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ] && [ "${{ github.event.inputs.action }}" == "destroy" ]; then
+            terraform destroy -auto-approve
+          else
+            terraform apply -auto-approve
+          fi

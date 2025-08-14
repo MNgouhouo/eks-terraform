@@ -1,55 +1,55 @@
-# .github/workflows/terraform-apply.yml
-name: "Terraform — Apply (main)"
+# # .github/workflows/terraform-apply.yml
+# name: "Terraform — Apply (main)"
 
-on:
-  push:
-    branches: [ main ]
-  workflow_dispatch:
+# on:
+#   push:
+#     branches: [ main ]
+#   workflow_dispatch:
 
-permissions:
-  contents: read
-  id-token: write
+# permissions:
+#   contents: read
+#   id-token: write
 
-jobs:
-  terraform-apply:
-    runs-on: ubuntu-latest
-    environment: production   # protect this environment in repo settings
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+# jobs:
+#   terraform-apply:
+#     runs-on: ubuntu-latest
+#     environment: production   # protect this environment in repo settings
+#     steps:
+#       - name: Checkout
+#         uses: actions/checkout@v4
 
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v2
-        with:
-          terraform_version: 1.5.6
+#       - name: Setup Terraform
+#         uses: hashicorp/setup-terraform@v2
+#         with:
+#           terraform_version: 1.5.6
 
-      - name: Configure AWS credentials 
-        uses: aws-actions/configure-aws-credentials@v2
-        with:
-<<<<<<< HEAD
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_DEFAULT_REGION }}   
+#       - name: Configure AWS credentials 
+#         uses: aws-actions/configure-aws-credentials@v2
+#         with:
+# <<<<<<< HEAD
+#           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#           aws-region: ${{ secrets.AWS_DEFAULT_REGION }}   
       
-=======
-          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
-          aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
+# =======
+#           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+#           aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
 
->>>>>>> 64f3a90fd5db26334d45b252499385c0e04dfdd8
-      - name: Terraform init
-        run: terraform init -input=false
+# >>>>>>> 64f3a90fd5db26334d45b252499385c0e04dfdd8
+#       - name: Terraform init
+#         run: terraform init -input=false
 
-      - name: Terraform apply (plan then apply)
-        run: |
-          terraform plan -out=tfplan -no-color
-          terraform apply -input=false -auto-approve tfplan
+#       - name: Terraform apply (plan then apply)
+#         run: |
+#           terraform plan -out=tfplan -no-color
+#           terraform apply -input=false -auto-approve tfplan
 
-      - name: Show outputs (cluster name & endpoint)
-        run: |
-          echo "Cluster name: $(terraform output -raw cluster_name || echo 'n/a')"
-          echo "Cluster endpoint: $(terraform output -raw cluster_endpoint || echo 'n/a')"
+#       - name: Show outputs (cluster name & endpoint)
+#         run: |
+#         # echo "Cluster name: $(terraform output -raw cluster_name || echo 'n/a')"
+#           echo "Cluster endpoint: $(terraform output -raw cluster_endpoint || echo 'n/a')"
 
-      - name: Update kubeconfig (optional)
-        run: |
-          CLUSTER_NAME=$(terraform output -raw cluster_name)
-          aws eks update-kubeconfig --region ${{ secrets.AWS_REGION }} --name "$CLUSTER_NAME"
+#       - name: Update kubeconfig (optional)
+#         run: |
+#           CLUSTER_NAME=$(terraform output -raw cluster_name)
+#           aws eks update-kubeconfig --region ${{ secrets.AWS_REGION }} --name "$CLUSTER_NAME"
